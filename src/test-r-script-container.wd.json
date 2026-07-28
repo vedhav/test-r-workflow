@@ -1,10 +1,16 @@
 {
   "name": "test-r-script-container",
   "title": "R Script Container Probe",
-  "description": "Runs an R script from a GitHub repo + Docker image and reports the R library paths.",
-  "triggers": [{ "type": "manual", "name": "manual" }],
-  "roles": ["operator"],
-  "env": { "GITHUB_TOKEN": "{{GITHUB_TOKEN}}" },
+  "description": "Runs an inline R script in the prebuilt mediforce-agent:cdisc-case-3 image and reports the R version and library paths.",
+  "triggers": [
+    {
+      "type": "manual",
+      "name": "manual"
+    }
+  ],
+  "roles": [
+    "operator"
+  ],
   "steps": [
     {
       "id": "probe",
@@ -13,11 +19,9 @@
       "executor": "script",
       "plugin": "script-container",
       "script": {
-        "command": "Rscript /app/scripts/probe.R",
-        "dockerfile": "Dockerfile",
-        "repo": "https://github.com/vedhav/test-r-workflow",
-        "commit": "cbd2dbadd225a70298f0266545d1d69b8b6309ac",
-        "repoAuth": "GITHUB_TOKEN",
+        "image": "mediforce-agent:cdisc-case-3",
+        "inlineScript": "output_dir <- Sys.getenv(\"MEDIFORCE_OUTPUT_DIR\", unset = \"/output\")\n\nhas_jsonlite <- requireNamespace(\"jsonlite\", quietly = TRUE)\n\ninfo <- list(\n  ok = TRUE,\n  image = \"mediforce-agent:cdisc-case-3\",\n  rVersion = paste(R.version$major, R.version$minor, sep = \".\"),\n  jsonliteInstalled = has_jsonlite,\n  admiralInstalled = requireNamespace(\"admiral\", quietly = TRUE),\n  libPaths = .libPaths()\n)\n\ncat(\"probe: R\", info$rVersion,\n    \"| jsonlite\", has_jsonlite,\n    \"| admiral\", info$admiralInstalled, \"\\n\")\n\ntarget <- file.path(output_dir, \"result.json\")\nif (has_jsonlite) {\n  write(jsonlite::toJSON(info, auto_unbox = TRUE, pretty = TRUE), target)\n} else {\n  write(\n    paste(\n      names(info),\n      vapply(info, function(x) paste(x, collapse = \",\"), character(1)),\n      sep = \"=\", collapse = \"\\n\"\n    ),\n    target\n  )\n}\ncat(\"wrote\", target, \"\\n\")\n",
+        "runtime": "r",
         "timeoutMinutes": 15
       }
     },
@@ -28,5 +32,10 @@
       "executor": "human"
     }
   ],
-  "transitions": [{ "from": "probe", "to": "done" }]
+  "transitions": [
+    {
+      "from": "probe",
+      "to": "done"
+    }
+  ]
 }

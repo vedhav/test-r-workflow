@@ -1,45 +1,51 @@
 # test-r-workflow
 
-A minimal Mediforce workflow that runs an R script from this repo inside a Docker
-image built on the platform, and reports the R library paths.
+A minimal Mediforce workflow that runs an inline R script inside a prebuilt
+Docker image on the platform, and reports the R version and library paths.
 
 ## Layout
 
 - `src/test-r-script-container.wd.json` — the WorkflowDefinition (one `script`
-  step + a terminal step).
-- `Dockerfile` — extends `mediforce-golden-image` and `COPY`s `scripts/` in.
-  Build context is the repo root.
-- `scripts/probe.R` — reads `$MEDIFORCE_OUTPUT_DIR` (default `/output`), writes
-  `result.json`.
+  step + a terminal step). The R source lives in the step's `inlineScript`.
 
 ## Deploy target
 
 - Base URL: `https://cdisc.mediforce.ai`
 - Namespace: `vedha`
-- Image is a **lazy build**: `dockerfile` + `repo` + `commit`, no `image` tag —
-  the platform builds it on first run.
+- Image is **prebuilt**: `image: mediforce-agent:cdisc-case-3`, no `dockerfile` /
+  `repo` / `commit`. With no build config, `resolveImageBuild` returns
+  `undefined` and the platform skips the image-build path entirely — it runs the
+  container directly. Nothing is built at run time.
+
+`inlineScript` + `runtime: r` makes the platform write the script to
+`/output/script.R` and run `Rscript /output/script.R` in `image`, so no file
+needs to be baked into the image or cloned from this repo.
 
 ## Secrets
 
-- `GITHUB_TOKEN` — a zero-scope fine-grained PAT. Required for the image build to
-  clone this repo (the platform rewrites the clone URL to SSH otherwise). Set
-  namespace-wide:
-  ```bash
-  printf '%s' "<token>" | pnpm exec mediforce secret set --key GITHUB_TOKEN --stdin --namespace vedha
-  ```
+None. `GITHUB_TOKEN` was only needed to clone this repo for the image build; the
+prebuilt image needs no repo access.
 
 ## Output contract
 
 `probe` step `result.json`:
 
 ```json
-{ "ok": true, "libPaths": ["..."], "siteLibrary": ["..."], "baseLibrary": ["..."] }
+{
+  "ok": true,
+  "image": "mediforce-agent:cdisc-case-3",
+  "rVersion": "4.6.1",
+  "jsonliteInstalled": true,
+  "admiralInstalled": false,
+  "libPaths": ["..."]
+}
 ```
 
 ## Run
 
 ```bash
+pnpm exec mediforce workflow register --file src/test-r-script-container.wd.json \
+  --namespace vedha --base-url https://cdisc.mediforce.ai
 pnpm exec mediforce run start --workflow test-r-script-container --namespace vedha --json
-pnpm exec mediforce run watch <runId>
 pnpm exec mediforce run get <runId> --json
 ```
