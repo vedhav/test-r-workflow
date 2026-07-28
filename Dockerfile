@@ -1,11 +1,12 @@
 # R probe image — extends the golden image (R + jsonlite already present).
-# Build context is this file's directory (the repo root), so `COPY scripts/`
-# resolves against the repo root. See build-workflow platform-contract §2.
+# This Dockerfile MUST stay at the repo root: the platform sets the build
+# context to the Dockerfile's own directory (docker-image-builder.ts), so
+# `COPY scripts/` only resolves while this file sits beside `scripts/`.
+#
+# Deliberately cheap: no package installs. This build exists to prove the
+# platform's build path (repo fetch -> FROM -> COPY -> run) end to end.
+# Add expensive layers back only once a fast build is confirmed green.
 FROM mediforce-golden-image
-
-# admiral (ADaM derivation) — keep build output quiet: the platform builds with
-# a ~1MB buffer and a chatty build gets killed. See build-workflow contract.
-RUN install2.r --error --skipinstalled admiral > /dev/null 2>&1
 
 COPY scripts/ /app/scripts/
 
