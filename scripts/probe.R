@@ -1,9 +1,11 @@
 library(jsonlite)
+library(admiral)
 
 output_dir <- Sys.getenv("MEDIFORCE_OUTPUT_DIR", unset = "/output")
 
 result <- list(
   ok = TRUE,
+  admiralVersion = as.character(packageVersion("admiral")),
   libPaths = I(.libPaths()),
   siteLibrary = I(list.files("/usr/local/lib/R/site-library")),
   baseLibrary = I(list.files("/usr/local/lib/R/library"))
