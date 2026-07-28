@@ -8,7 +8,8 @@ result <- list(
   admiralInstalled = requireNamespace("admiral", quietly = TRUE),
   libPaths = I(.libPaths()),
   siteLibrary = I(list.files("/usr/local/lib/R/site-library")),
-  baseLibrary = I(list.files("/usr/local/lib/R/library"))
+  baseLibrary = I(list.files("/usr/local/lib/R/library")),
+  scriptFiles = I(list.files("/app/scripts/"))
 )
 
 write(
