@@ -1,7 +1,7 @@
 {
   "name": "test-r-script-container",
   "title": "R Script Container Probe",
-  "description": "Runs an inline R script in the prebuilt mediforce-agent:cdisc-case-3 image and reports the R version and library paths.",
+  "description": "Builds an image from this repo on the platform and runs scripts/probe.R, reporting the R version and library paths.",
   "triggers": [
     {
       "type": "manual",
@@ -11,6 +11,9 @@
   "roles": [
     "operator"
   ],
+  "env": {
+    "GITHUB_TOKEN": "{{GITHUB_TOKEN}}"
+  },
   "steps": [
     {
       "id": "probe",
@@ -18,11 +21,16 @@
       "type": "creation",
       "executor": "script",
       "plugin": "script-container",
+      "env": {
+        "GITHUB_TOKEN": "{{GITHUB_TOKEN}}"
+      },
       "script": {
-        "image": "mediforce-agent:cdisc-case-3",
-        "inlineScript": "output_dir <- Sys.getenv(\"MEDIFORCE_OUTPUT_DIR\", unset = \"/output\")\n\nhas_jsonlite <- requireNamespace(\"jsonlite\", quietly = TRUE)\n\ninfo <- list(\n  ok = TRUE,\n  image = \"mediforce-agent:cdisc-case-3\",\n  rVersion = paste(R.version$major, R.version$minor, sep = \".\"),\n  jsonliteInstalled = has_jsonlite,\n  admiralInstalled = requireNamespace(\"admiral\", quietly = TRUE),\n  libPaths = .libPaths()\n)\n\ncat(\"probe: R\", info$rVersion,\n    \"| jsonlite\", has_jsonlite,\n    \"| admiral\", info$admiralInstalled, \"\\n\")\n\ntarget <- file.path(output_dir, \"result.json\")\nif (has_jsonlite) {\n  write(jsonlite::toJSON(info, auto_unbox = TRUE, pretty = TRUE), target)\n} else {\n  write(\n    paste(\n      names(info),\n      vapply(info, function(x) paste(x, collapse = \",\"), character(1)),\n      sep = \"=\", collapse = \"\\n\"\n    ),\n    target\n  )\n}\ncat(\"wrote\", target, \"\\n\")\n",
-        "runtime": "r",
-        "timeoutMinutes": 15
+        "command": "Rscript /app/scripts/probe.R",
+        "dockerfile": "Dockerfile",
+        "repo": "https://github.com/vedhav/test-r-workflow",
+        "commit": "df6e578777bc0df7a0c8f6637cb1e6ce1b450548",
+        "repoAuth": "GITHUB_TOKEN",
+        "timeoutMinutes": 20
       }
     },
     {
