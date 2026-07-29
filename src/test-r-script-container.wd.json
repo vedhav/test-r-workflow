@@ -28,7 +28,7 @@
         "command": "Rscript /app/scripts/probe.R",
         "dockerfile": "Dockerfile",
         "repo": "https://github.com/vedhav/test-r-workflow",
-        "commit": "b6faca0fbda656cac8ea3941087595bc37f76161",
+        "commit": "b5a5e1b4b2c9200e2fae698bd02510d9154b4117",
         "repoAuth": "GITHUB_TOKEN",
         "timeoutMinutes": 20
       }
