@@ -8,9 +8,7 @@
       "name": "manual"
     }
   ],
-  "roles": [
-    "operator"
-  ],
+  "roles": ["operator"],
   "env": {
     "GITHUB_TOKEN": "{{GITHUB_TOKEN}}"
   },
@@ -28,7 +26,7 @@
         "command": "Rscript /app/scripts/probe.R",
         "dockerfile": "Dockerfile",
         "repo": "https://github.com/vedhav/test-r-workflow",
-        "commit": "b5a5e1b4b2c9200e2fae698bd02510d9154b4117",
+        "commit": "b125bc91651670bb4758974f729b28607a46c5e4",
         "repoAuth": "GITHUB_TOKEN",
         "timeoutMinutes": 60
       }
