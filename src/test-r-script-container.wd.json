@@ -30,7 +30,7 @@
         "repo": "https://github.com/vedhav/test-r-workflow",
         "commit": "b5a5e1b4b2c9200e2fae698bd02510d9154b4117",
         "repoAuth": "GITHUB_TOKEN",
-        "timeoutMinutes": 20
+        "timeoutMinutes": 60
       }
     },
     {
