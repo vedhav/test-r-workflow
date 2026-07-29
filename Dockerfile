@@ -10,4 +10,19 @@ FROM mediforce-golden-image
 
 COPY scripts/ /app/scripts/
 
+RUN R -e "pak::pkg_install(c(
+  'pharmaverse/admiral',
+  'pharmaverse/admiraldev',
+  'pharmaverse/metacore',
+  'pharmaverse/metatools',
+  'pharmaverse/xportr',
+  'pharmaverse/datasetjson',
+  'pharmaverse/random.cdisc.data',
+  'pharmaverse/pharmaversesdtm',
+  'pharmaverse/pharmaversesdtmg',
+  'insightsengineering/teal',
+  'insightsengineering/teal.modules.general',
+  'insightsengineering/tern'
+))"
+
 WORKDIR /workspace
